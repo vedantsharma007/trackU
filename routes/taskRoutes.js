@@ -9,13 +9,26 @@ const {
   deleteTask
 } = require("../controllers/taskController");
 
-const protect = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
+const { validate } = require("../middleware/validationMiddleware");
 
-router.post("/", protect, createTask);
+const {
+  createTaskValidator,
+  updateTaskValidator
+} = require("../validators/taskValidator");
+
+// CREATE
+router.post("/", protect, createTaskValidator, validate, createTask);
+
+// GET
 router.get("/", protect, getTasks);
 router.get("/:id", protect, getTaskById);
-router.put("/:id", protect, updateTask);
+
+// UPDATE
+router.put("/:id", protect, updateTaskValidator, validate, updateTask);
+
+// DELETE
 router.delete("/:id", protect, deleteTask);
 
-
 module.exports = router;
+
