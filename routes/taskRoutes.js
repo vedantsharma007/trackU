@@ -9,7 +9,7 @@ const {
   deleteTask
 } = require("../controllers/taskController");
 
-const { protect } = require("../middleware/authMiddleware");
+const  protect  = require("../middleware/authMiddleware");
 const { validate } = require("../middleware/validationMiddleware");
 
 const {
