@@ -33,8 +33,10 @@ exports.registerUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token
     });
+
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -58,8 +60,10 @@ exports.loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         token
       });
+
 
     } else {
       res.status(401).json({ message: "Invalid credentials" });

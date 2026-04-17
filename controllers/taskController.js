@@ -22,10 +22,52 @@ exports.createTask = asyncHandler(async (req, res) => {
 
 // GET ALL TASKS
 exports.getTasks = asyncHandler(async (req, res) => {
-  const tasks = await Task.find({ user: req.user._id });
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 5;
 
-  res.status(200).json(tasks);
+  // prevent abuse
+  if (limit > 50) {
+    return res.status(400).json({ message: "Limit too high (max 50)" });
+  }
+
+  const skip = (page - 1) * limit;
+
+  // base filter (user-specific)
+  let filter = { user: req.user._id };
+
+  // filtering by completed status
+  if (req.query.completed !== undefined) {
+    if (req.query.completed === "true") {
+      filter.completed = true;
+    } else if (req.query.completed === "false") {
+      filter.completed = false;
+    } else {
+      return res.status(400).json({ message: "Invalid completed value" });
+    }
+  }
+
+  // search by title (optional advanced)
+  if (req.query.search) {
+    filter.title = { $regex: req.query.search, $options: "i" };
+  }
+
+  const tasks = await Task.find(filter)
+    .sort({ createdAt: -1 }) // latest first
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Task.countDocuments(filter);
+
+  res.status(200).json({
+    success: true,
+    total,
+    page,
+    pages: Math.ceil(total / limit),
+    count: tasks.length,
+    tasks
+  });
 });
+
 
 
 
