@@ -6,7 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
-// 🔐 NEW IMPORTS
+
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
@@ -22,8 +22,8 @@ app.use(helmet());
 
 // 2. Rate limiting → prevent spam/abuse
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
-  max: 10, // max 100 requests per IP
+  windowMs: 5 * 60 * 1000, // 5 min
+  max: 10, 
   message: "Too many requests, try again later"
 });
 app.use(limiter);

@@ -25,17 +25,16 @@ exports.getTasks = asyncHandler(async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 5;
 
-  // prevent abuse
   if (limit > 50) {
     return res.status(400).json({ message: "Limit too high (max 50)" });
   }
 
   const skip = (page - 1) * limit;
 
-  // base filter (user-specific)
+  // base filter
   let filter = { user: req.user._id };
 
-  // filtering by completed status
+  // filter by completed
   if (req.query.completed !== undefined) {
     if (req.query.completed === "true") {
       filter.completed = true;
@@ -46,15 +45,37 @@ exports.getTasks = asyncHandler(async (req, res) => {
     }
   }
 
-  // search by title (optional advanced)
+  // 🔍 SEARCH (TEXT INDEX)
   if (req.query.search) {
-    filter.title = { $regex: req.query.search, $options: "i" };
+    filter.$text = { $search: req.query.search };
+  }
+
+  // 🎯 FIELD SELECTION
+  let select = "-__v";
+  if (req.query.fields) {
+    select = req.query.fields.split(",").join(" ");
+  }
+
+  // 🔃 SORTING
+  let sort = { createdAt: -1 };
+  if (req.query.sort) {
+    sort = {};
+    const fields = req.query.sort.split(",");
+    fields.forEach(field => {
+      if (field.startsWith("-")) {
+        sort[field.substring(1)] = -1;
+      } else {
+        sort[field] = 1;
+      }
+    });
   }
 
   const tasks = await Task.find(filter)
-    .sort({ createdAt: -1 }) // latest first
+    .select(select)
+    .sort(sort)
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
   const total = await Task.countDocuments(filter);
 
@@ -67,6 +88,7 @@ exports.getTasks = asyncHandler(async (req, res) => {
     tasks
   });
 });
+
 
 
 
