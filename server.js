@@ -40,7 +40,7 @@ app.use(helmet());
 // Rate limiter AFTER CORS
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 50,
+  max: 200,
   message: "Too many requests, try again later"
 });
 app.use(limiter);
