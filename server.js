@@ -23,16 +23,24 @@ app.use(helmet());
 // 2. Rate limiting → prevent spam/abuse
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 min
-  max: 10, 
+  max: 25, 
   message: "Too many requests, try again later"
 });
 app.use(limiter);
 
+const cors = require("cors");
+
+
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 // Body parser
 app.use(express.json());
 
-const cors = require("cors");
-app.use(cors());
+
 
 // ROUTES
 app.use("/api/auth", authRoutes);
