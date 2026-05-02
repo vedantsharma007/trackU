@@ -31,6 +31,10 @@ app.use(limiter);
 // Body parser
 app.use(express.json());
 
+const cors = require("cors");
+app.use(cors());
+const PORT = process.env.PORT || 5000;
+
 // ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
