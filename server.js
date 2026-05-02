@@ -6,43 +6,55 @@ const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
-
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const cors = require("cors");
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// 🔐 SECURITY MIDDLEWARE
 
-// 1. Helmet → secure HTTP headers
+// ==================
+// ✅ CORS (FIRST)
+// ==================
+app.use(cors({
+  origin: "http://localhost:3000", // frontend
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
+// handle preflight requests
+app.options("*", cors());
+
+
+// ==================
+// 🔐 SECURITY
+// ==================
+
+// Helmet AFTER CORS
 app.use(helmet());
 
-// 2. Rate limiting → prevent spam/abuse
+// Rate limiter AFTER CORS
 const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 min
-  max: 25, 
+  windowMs: 5 * 60 * 1000,
+  max: 50,
   message: "Too many requests, try again later"
 });
 app.use(limiter);
 
-const cors = require("cors");
 
-
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-// Body parser
+// ==================
+// BODY PARSER
+// ==================
 app.use(express.json());
 
 
-
+// ==================
 // ROUTES
+// ==================
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 
@@ -50,9 +62,16 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+
+// ==================
 // ERROR HANDLER
+// ==================
 app.use(errorHandler);
 
+
+// ==================
+// SERVER
+// ==================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
