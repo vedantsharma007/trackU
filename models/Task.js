@@ -5,10 +5,10 @@ const taskSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  recurrence: {
+  recurring: {
     type: String,
-    enum: ["daily", "weekly", "monthly"],
-    default: "daily"
+    enum: ["none", "daily", "weekly", "monthly"],
+    default: "none",
   },
   completed: {
     type: Boolean,
