@@ -4,23 +4,31 @@ const asyncHandler = require("../middleware/asyncHandler");
 
 // CREATE TASK
 exports.createTask = asyncHandler(async (req, res) => {
-  if (!req.body.title) {
-    const error = new Error("Title is required");
-    error.statusCode = 400;
-    throw error;
+  const { title, description, priority, status, recurring, dueDate } = req.body;
+
+  if (!title || !title.trim()) {
+    return res.status(400).json({ message: "Title is required" });
   }
 
-  const task = await Task.create({
-    user:        req.user._id,
-    title:       title.trim(),
-    description: description?.trim() || "",
-    priority:    priority    || "medium",   // ← now saved
-    status:      status      || "pending",
-    recurring:   recurring   || "none",     // ← now saved
-    dueDate:     dueDate     || null,
-    completed:   false,
-  });
+  // Build task object — only include fields that are valid
+  const taskData = {
+    user:      req.user._id,
+    title:     title.trim(),
+    completed: false,
+    status:    "pending",
+  };
 
+  // Only add optional fields if they have valid values
+  if (description) taskData.description = description.trim();
+  if (priority && ["low","medium","high"].includes(priority)) {
+    taskData.priority = priority;
+  }
+  if (recurring && ["none","daily","weekly","monthly"].includes(recurring)) {
+    taskData.recurring = recurring;
+  }
+  if (dueDate) taskData.dueDate = new Date(dueDate);
+
+  const task = await Task.create(taskData);
   res.status(201).json(task);
 });
 
