@@ -11,8 +11,14 @@ exports.createTask = asyncHandler(async (req, res) => {
   }
 
   const task = await Task.create({
-    title: req.body.title,
-    user: req.user._id
+    user:        req.user._id,
+    title:       title.trim(),
+    description: description?.trim() || "",
+    priority:    priority    || "medium",   // ← now saved
+    status:      status      || "pending",
+    recurring:   recurring   || "none",     // ← now saved
+    dueDate:     dueDate     || null,
+    completed:   false,
   });
 
   res.status(201).json(task);
