@@ -21,7 +21,7 @@ const app = express();
 // ==================
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://tracku-six.vercel.app/"
+  "https://tracku-six.vercel.app"
 ];
 
 app.use(cors({
@@ -34,7 +34,7 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(null, false);
     }
   },
 
