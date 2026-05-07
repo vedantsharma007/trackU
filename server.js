@@ -21,7 +21,7 @@ const app = express();
 // ==================
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://tracku-six.vercel.app"
+  "https://tracku-three.vercel.app"
 ];
 
 app.use(cors({
